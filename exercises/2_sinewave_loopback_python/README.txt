@@ -1,0 +1,1 @@
+for jupiter, use loopback from tx1 to rx1 and from tx2 to rx2
