@@ -8,7 +8,7 @@ import time
 ############################################################################################################
 frequency_tx = 20000  # 20 KHz sinewave to be transmitted
 num_periods_tx = 50
-amplitude = 2**14
+amplitude = 2**14 # maximum is (2**15) - 1
 center_freq_tx = 915000000 # 915 MHz
 sample_rate = 2e6 # Hz
 num_samps_tx = int(num_periods_tx*sample_rate/frequency_tx) # number of samples per call to rx(), multiple of 200 to have full period of the sinewave
@@ -28,7 +28,7 @@ sdr.tx_cyclic_buffer = True # Enable cyclic buffers
 sdr.rx_lo = center_freq_tx
 sdr.rx_rf_bandwidth = int(sample_rate)
 sdr.rx_buffer_size = num_samps_rx
-sdr.gain_control_mode_chan0 = 'fast_attack'
+sdr.gain_control_mode_chan0 = 'slow_attack'
 sdr.rx_hardwaregain_chan0 = 0 # dB, increase to increase the receive gain, but be careful not to saturate the ADC
 
 # Destroy Tx buffer
