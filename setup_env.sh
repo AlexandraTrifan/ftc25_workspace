@@ -12,7 +12,7 @@ pyqt5-dev-tools pyqt6-dev-tools python3-cffi-backend python3-click python3-click
 python3-colorama python3-contextlib2 python3-jsonschema python3-mako python3-markupsafe \
 python3-opengl python3-py python3-pygccxml python3-pyqt6 python3-pyqt6.sip \
 python3-pyqtgraph python3-pyrsistent python3-schema python3-thrift python3-zmq \
-qt6-base-dev-tools qtbase5-dev-tools qtchooser libqwt-qt5-dev libsndfile1-dev
+qtbase5-dev-tools qtchooser libqwt-qt5-dev libsndfile1-dev
 
 python3 -m pip install 'numpy<2' --break-system-packages
 

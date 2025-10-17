@@ -395,44 +395,6 @@ blocks:
     coordinate: [240, 508.0]
     rotation: 0
     state: enabled
-- name: blocks_max_xx_0
-  id: blocks_max_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '1'
-    type: float
-    vlen: '1'
-    vlen_out: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1904, 1744.0]
-    rotation: 0
-    state: enabled
-- name: blocks_min_xx_0
-  id: blocks_min_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '1'
-    type: float
-    vlen: '1'
-    vlen_out: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1904, 1872.0]
-    rotation: 0
-    state: enabled
 - name: blocks_multiply_const_vxx_0
   id: blocks_multiply_const_vxx
   parameters:
@@ -553,23 +515,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [1088, 1336.0]
-    rotation: 0
-    state: enabled
-- name: blocks_rms_xx_0
-  id: blocks_rms_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha: '0.0001'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: float
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1904, 1804.0]
     rotation: 0
     state: enabled
 - name: blocks_skiphead_0
@@ -727,7 +672,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1720, 1664.0]
+    coordinate: [1584, 1664.0]
     rotation: 0
     state: enabled
 - name: digital_symbol_sync_xx_0
@@ -757,6 +702,105 @@ blocks:
     coordinate: [1192, 916.0]
     rotation: 0
     state: true
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\n\nclass blk(gr.sync_block):  # other base classes are\
+      \ basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block example\
+      \ - a simple multiply const\"\"\"\n\n    def __init__(self, window_size=100):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name=\"EVM\
+      \ RMS\",\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
+      \        )\n        self.window_size = window_size\n        self.buffer = []\n\
+      \n    def work(self, input_items, output_items):\n        in0 = input_items[0]\n\
+      \        out = output_items[0]\n\n        for i, val in enumerate(in0):\n  \
+      \          self.buffer.append(val ** 2)\n            if len(self.buffer) > self.window_size:\n\
+      \                self.buffer.pop(0)\n            rms = np.sqrt(np.mean(self.buffer))\n\
+      \            out[i] = rms\n\n        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    window_size: '1000'
+  states:
+    _io_cache: ('EVM RMS', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
+      'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2192, 1860.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\n\nclass blk(gr.sync_block):  # other base classes are\
+      \ basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block example\
+      \ - a simple multiply const\"\"\"\n\n    def __init__(self, window_size=100):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name=\"EVM\
+      \ MAX\",\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
+      \        )\n        self.window_size = window_size\n        self.buffer = []\n\
+      \n    def work(self, input_items, output_items):\n        in0 = input_items[0]\n\
+      \        out = output_items[0]\n\n        for i, val in enumerate(in0):\n  \
+      \          self.buffer.append(val)\n            if len(self.buffer) > self.window_size:\n\
+      \                self.buffer.pop(0)\n            max_val = np.max(self.buffer)\n\
+      \            out[i] = max_val\n\n        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    window_size: '100'
+  states:
+    _io_cache: ('EVM MAX', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
+      'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2192, 1796.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Blocks:\n\nEach time this file is saved,\
+      \ GRC will instantiate the first class it finds\nto get ports and parameters\
+      \ of your block. The arguments to __init__  will\nbe the parameters. All of\
+      \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
+      from gnuradio import gr\n\nclass blk(gr.sync_block):  # other base classes are\
+      \ basic_block, decim_block, interp_block\n    \"\"\"Embedded Python Block example\
+      \ - a simple multiply const\"\"\"\n\n    def __init__(self, window_size=100):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name=\"EVM\
+      \ MIN\",\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
+      \        )\n        self.window_size = window_size\n        self.buffer = []\n\
+      \n    def work(self, input_items, output_items):\n        in0 = input_items[0]\n\
+      \        out = output_items[0]\n\n        for i, val in enumerate(in0):\n  \
+      \          self.buffer.append(val)\n            if len(self.buffer) > self.window_size:\n\
+      \                self.buffer.pop(0)\n            min_val = np.min(self.buffer)\n\
+      \            out[i] = min_val\n\n        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    window_size: '100'
+  states:
+    _io_cache: ('EVM MIN', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
+      'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2184, 1956.0]
+    rotation: 0
+    state: enabled
 - name: iio_pluto_sink_0
   id: iio_pluto_sink
   parameters:
@@ -1182,7 +1226,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    autoscale: 'False'
+    autoscale: 'True'
     avg: '1'
     color1: ("black", "black")
     color10: ("black", "black")
@@ -1237,7 +1281,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1896, 1940.0]
+    coordinate: [1904, 1980.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
@@ -1546,7 +1590,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'False'
+    autoscale: 'True'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -1643,7 +1687,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'False'
+    autoscale: 'True'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -1715,14 +1759,14 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '16'
+    ymax: '100'
     ymin: '-1'
     yunit: '""'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2128, 1716.0]
+    coordinate: [2632, 1636.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_1_1_0_0
@@ -1740,7 +1784,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'False'
+    autoscale: 'True'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -1819,7 +1863,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2128, 1820.0]
+    coordinate: [2632, 1836.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_1_1_0_0_0
@@ -1916,7 +1960,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2128, 1924.0]
+    coordinate: [2632, 1940.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_3
@@ -2026,15 +2070,12 @@ connections:
 - [blocks_char_to_float_0, '0', qtgui_time_sink_x_3, '1']
 - [blocks_char_to_float_0_0, '0', qtgui_time_sink_x_3, '0']
 - [blocks_char_to_float_0_1, '0', qtgui_time_sink_x_1, '0']
-- [blocks_max_xx_0, '0', qtgui_time_sink_x_1_1_0, '0']
-- [blocks_min_xx_0, '0', qtgui_time_sink_x_1_1_0_0_0, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_multiply_xx_0_0, '0']
 - [blocks_multiply_const_vxx_0, '0', qtgui_time_sink_x_0, '0']
 - [blocks_multiply_xx_0_0, '0', iio_pluto_sink_0, '0']
 - [blocks_multiply_xx_0_0, '0', qtgui_freq_sink_x_0, '0']
 - [blocks_multiply_xx_0_0_0, '0', analog_agc_xx_0, '0']
 - [blocks_phase_shift_0, '0', digital_constellation_receiver_cb_0, '0']
-- [blocks_rms_xx_0, '0', qtgui_time_sink_x_1_1_0_0, '0']
 - [blocks_skiphead_0, '0', digital_symbol_sync_xx_0, '0']
 - [blocks_unpacked_to_packed_xx_0, '0', digital_constellation_modulator_0, '0']
 - [blocks_vector_source_x_0_0, '0', blocks_char_to_float_0_1, '0']
@@ -2052,13 +2093,16 @@ connections:
 - [digital_diff_decoder_bb_0, '0', blocks_char_to_float_0, '0']
 - [digital_fll_band_edge_cc_0, '0', blocks_skiphead_0, '0']
 - [digital_fll_band_edge_cc_0, '0', qtgui_freq_sink_x_0_0_0, '2']
-- [digital_meas_evm_cc_0, '0', blocks_max_xx_0, '0']
-- [digital_meas_evm_cc_0, '0', blocks_min_xx_0, '0']
-- [digital_meas_evm_cc_0, '0', blocks_rms_xx_0, '0']
+- [digital_meas_evm_cc_0, '0', epy_block_0, '0']
+- [digital_meas_evm_cc_0, '0', epy_block_0_0, '0']
+- [digital_meas_evm_cc_0, '0', epy_block_0_0_0, '0']
 - [digital_meas_evm_cc_0, '0', qtgui_number_sink_0, '0']
 - [digital_meas_evm_cc_0, '0', qtgui_time_sink_x_1_1, '0']
 - [digital_symbol_sync_xx_0, '0', blocks_phase_shift_0, '0']
 - [digital_symbol_sync_xx_0, '0', qtgui_const_sink_x_0_0, '0']
+- [epy_block_0, '0', qtgui_time_sink_x_1_1_0_0, '0']
+- [epy_block_0_0, '0', qtgui_time_sink_x_1_1_0, '0']
+- [epy_block_0_0_0, '0', qtgui_time_sink_x_1_1_0_0_0, '0']
 - [iio_pluto_source_0, '0', blocks_multiply_xx_0_0_0, '0']
 - [iio_pluto_source_0, '0', qtgui_freq_sink_x_0_0_0, '0']
 
