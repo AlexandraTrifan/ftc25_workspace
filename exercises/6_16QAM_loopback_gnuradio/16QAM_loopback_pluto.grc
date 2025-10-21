@@ -728,14 +728,14 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    window_size: '1000'
+    window_size: '100'
   states:
     _io_cache: ('EVM RMS', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
       'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2192, 1860.0]
+    coordinate: [1920, 1796.0]
     rotation: 0
     state: enabled
 - name: epy_block_0_0
@@ -762,14 +762,14 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    window_size: '1000'
+    window_size: '100'
   states:
     _io_cache: ('EVM MAX', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
       'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2192, 1772.0]
+    coordinate: [1920, 1740.0]
     rotation: 0
     state: enabled
 - name: epy_block_0_0_0
@@ -784,26 +784,26 @@ blocks:
       \ - a simple multiply const\"\"\"\n\n    def __init__(self, window_size=100):\n\
       \        gr.sync_block.__init__(\n            self,\n            name=\"EVM\
       \ MIN\",\n            in_sig=[np.float32],\n            out_sig=[np.float32]\n\
-      \        )\n        self.window_size = window_size\n        self.min_val = 0\n\
+      \        )\n        self.window_size = window_size\n        self.min_val = 100\n\
       \        self.count = 0\n\n\n    def work(self, input_items, output_items):\n\
       \        in0 = input_items[0]\n        out = output_items[0]\n\n        \n \
       \       for i in range(len(in0)):\n            self.min_val = min(self.min_val,\
       \ in0[i])\n            self.count += 1\n            out[i] = self.min_val\n\
       \        \n        if (self.count >= self.window_size):\n            self.count\
-      \ = 0\n            self.min_val = 0\n\n        return len(output_items[0])"
+      \ = 0\n            self.min_val = 100\n\n        return len(output_items[0])"
     affinity: ''
     alias: ''
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    window_size: '1000'
+    window_size: '100'
   states:
     _io_cache: ('EVM MIN', 'blk', [('window_size', '100')], [('0', 'float', 1)], [('0',
       'float', 1)], 'Embedded Python Block example - a simple multiply const', ['window_size'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2184, 1956.0]
+    coordinate: [1920, 1852.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_sink_0
@@ -1268,7 +1268,7 @@ blocks:
     label9: ''
     max: '1'
     min: '-1'
-    name: '"average"'
+    name: '"EVM average (%)"'
     nconnections: '1'
     type: float
     unit1: ''
@@ -1286,7 +1286,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1904, 1980.0]
+    coordinate: [1912, 1924.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
@@ -1771,7 +1771,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2632, 1732.0]
+    coordinate: [2136, 1716.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_1_1_0_0
@@ -1868,7 +1868,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2632, 1836.0]
+    coordinate: [2136, 1812.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_1_1_0_0_0
@@ -1965,7 +1965,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2632, 1940.0]
+    coordinate: [2136, 1908.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_3

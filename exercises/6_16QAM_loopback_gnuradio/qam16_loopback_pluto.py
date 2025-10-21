@@ -27,6 +27,9 @@ from gnuradio import eng_notation
 from gnuradio import iio
 import configparser
 import math
+import qam16_loopback_pluto_epy_block_0 as epy_block_0  # embedded python block
+import qam16_loopback_pluto_epy_block_0_0 as epy_block_0_0  # embedded python block
+import qam16_loopback_pluto_epy_block_0_0_0 as epy_block_0_0_0  # embedded python block
 import sip
 import threading
 
@@ -229,7 +232,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
 
         self.qtgui_time_sink_x_1_1_0_0.enable_tags(True)
         self.qtgui_time_sink_x_1_1_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_1_1_0_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_1_1_0_0.enable_autoscale(True)
         self.qtgui_time_sink_x_1_1_0_0.enable_grid(True)
         self.qtgui_time_sink_x_1_1_0_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_1_1_0_0.enable_control_panel(False)
@@ -271,13 +274,13 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
             None # parent
         )
         self.qtgui_time_sink_x_1_1_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_1_1_0.set_y_axis(-1, 16)
+        self.qtgui_time_sink_x_1_1_0.set_y_axis(-1, 100)
 
         self.qtgui_time_sink_x_1_1_0.set_y_label('Amplitude', "")
 
         self.qtgui_time_sink_x_1_1_0.enable_tags(True)
         self.qtgui_time_sink_x_1_1_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_1_1_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_1_1_0.enable_autoscale(True)
         self.qtgui_time_sink_x_1_1_0.enable_grid(True)
         self.qtgui_time_sink_x_1_1_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_1_1_0.enable_control_panel(False)
@@ -325,7 +328,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
 
         self.qtgui_time_sink_x_1_1.enable_tags(True)
         self.qtgui_time_sink_x_1_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_1_1.enable_autoscale(False)
+        self.qtgui_time_sink_x_1_1.enable_autoscale(True)
         self.qtgui_time_sink_x_1_1.enable_grid(True)
         self.qtgui_time_sink_x_1_1.enable_axis_labels(True)
         self.qtgui_time_sink_x_1_1.enable_control_panel(False)
@@ -529,7 +532,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
             None # parent
         )
         self.qtgui_number_sink_0.set_update_time(0.10)
-        self.qtgui_number_sink_0.set_title("average")
+        self.qtgui_number_sink_0.set_title("EVM average (%)")
 
         labels = ['', '', '', '', '',
             '', '', '', '', '']
@@ -551,7 +554,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_number_sink_0.set_unit(i, units[i])
             self.qtgui_number_sink_0.set_factor(i, factor[i])
 
-        self.qtgui_number_sink_0.enable_autoscale(False)
+        self.qtgui_number_sink_0.enable_autoscale(True)
         self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_number_sink_0_win)
         self.qtgui_freq_sink_x_0_0_0 = qtgui.freq_sink_c(
@@ -762,6 +765,9 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, tx_attenuation)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
+        self.epy_block_0_0_0 = epy_block_0_0_0.blk(window_size=100)
+        self.epy_block_0_0 = epy_block_0_0.blk(window_size=100)
+        self.epy_block_0 = epy_block_0.blk(window_size=100)
         self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
             digital.TED_SIGNAL_TIMES_SLOPE_ML,
             sps,
@@ -790,7 +796,6 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.blocks_vector_source_x_0_0 = blocks.vector_source_b((1,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15, 15, 12, 11, 9, 0, 4, 3, 2, 1, 13, 7, 4, 5), True, 1, [])
         self.blocks_unpacked_to_packed_xx_0 = blocks.unpacked_to_packed_bb(4, gr.GR_MSB_FIRST)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, int(samp_rate))
-        self.blocks_rms_xx_0 = blocks.rms_ff(0.0001)
         self.blocks_phase_shift_0 = blocks.phase_shift(phase_shift_before_costas_loop, True)
         self.blocks_null_sink_0_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
@@ -798,8 +803,6 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.blocks_multiply_xx_0_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(0.6)
-        self.blocks_min_xx_0 = blocks.min_ff(1,1)
-        self.blocks_max_xx_0 = blocks.max_ff(1, 1)
         self.blocks_char_to_float_0_1 = blocks.char_to_float(1, 1)
         self.blocks_char_to_float_0_0 = blocks.char_to_float(1, 1)
         self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
@@ -818,15 +821,12 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_3, 1))
         self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_3, 0))
         self.connect((self.blocks_char_to_float_0_1, 0), (self.qtgui_time_sink_x_1, 0))
-        self.connect((self.blocks_max_xx_0, 0), (self.qtgui_time_sink_x_1_1_0, 0))
-        self.connect((self.blocks_min_xx_0, 0), (self.qtgui_time_sink_x_1_1_0_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_multiply_xx_0_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.iio_pluto_sink_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_multiply_xx_0_0_0, 0), (self.analog_agc_xx_0, 0))
         self.connect((self.blocks_phase_shift_0, 0), (self.digital_constellation_receiver_cb_0, 0))
-        self.connect((self.blocks_rms_xx_0, 0), (self.qtgui_time_sink_x_1_1_0_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.blocks_unpacked_to_packed_xx_0, 0), (self.digital_constellation_modulator_0, 0))
         self.connect((self.blocks_vector_source_x_0_0, 0), (self.blocks_char_to_float_0_1, 0))
@@ -844,13 +844,16 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_char_to_float_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.qtgui_freq_sink_x_0_0_0, 2))
-        self.connect((self.digital_meas_evm_cc_0, 0), (self.blocks_max_xx_0, 0))
-        self.connect((self.digital_meas_evm_cc_0, 0), (self.blocks_min_xx_0, 0))
-        self.connect((self.digital_meas_evm_cc_0, 0), (self.blocks_rms_xx_0, 0))
+        self.connect((self.digital_meas_evm_cc_0, 0), (self.epy_block_0, 0))
+        self.connect((self.digital_meas_evm_cc_0, 0), (self.epy_block_0_0, 0))
+        self.connect((self.digital_meas_evm_cc_0, 0), (self.epy_block_0_0_0, 0))
         self.connect((self.digital_meas_evm_cc_0, 0), (self.qtgui_number_sink_0, 0))
         self.connect((self.digital_meas_evm_cc_0, 0), (self.qtgui_time_sink_x_1_1, 0))
         self.connect((self.digital_symbol_sync_xx_0, 0), (self.blocks_phase_shift_0, 0))
         self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_const_sink_x_0_0, 0))
+        self.connect((self.epy_block_0, 0), (self.qtgui_time_sink_x_1_1_0_0, 0))
+        self.connect((self.epy_block_0_0, 0), (self.qtgui_time_sink_x_1_1_0, 0))
+        self.connect((self.epy_block_0_0_0, 0), (self.qtgui_time_sink_x_1_1_0_0_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.blocks_multiply_xx_0_0_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
 
