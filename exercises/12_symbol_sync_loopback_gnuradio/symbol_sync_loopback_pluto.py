@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: qpsk_loopback_pluto
+# Title: symbol_sync_loopback_pluto
 # GNU Radio version: 3.10.11.0
 
 from PyQt5 import Qt
@@ -32,12 +32,12 @@ import threading
 
 
 
-class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
+class symbol_sync_loopback_pluto(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "qpsk_loopback_pluto", catch_exceptions=True)
+        gr.top_block.__init__(self, "symbol_sync_loopback_pluto", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("qpsk_loopback_pluto")
+        self.setWindowTitle("symbol_sync_loopback_pluto")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -55,7 +55,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "qpsk_loopback_pluto")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "symbol_sync_loopback_pluto")
 
         try:
             geometry = self.settings.value("geometry")
@@ -69,7 +69,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.sps = sps = 16
-        self.samp_rate = samp_rate = 900000
+        self.samp_rate = samp_rate = 1000000
         self.nfilts = nfilts = 32
         self.alpha = alpha = 0.5
         self.tx_attenuation = tx_attenuation = 15
@@ -80,10 +80,9 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         try: pluto_ip = self._pluto_ip_config.get('main', 'key')
         except: pluto_ip = 'ip:192.168.2.1'
         self.pluto_ip = pluto_ip
-        self.phase_shift_before_costas_loop = phase_shift_before_costas_loop = 0
-        self.offset_tx = offset_tx = 110000
+        self.offset_tx = offset_tx = 100000
         self.offset_rx = offset_rx = -100000
-        self.lo_freq = lo_freq = 915000000
+        self.lo_freq = lo_freq = 2200000000
         self.interval_update = interval_update = int(0)
         self.constellation = constellation = digital.constellation_calcdist([-1-1j, -1+1j, 1+1j, 1-1j], [0, 1, 2, 3],
         4, 1, digital.constellation.AMPLITUDE_NORMALIZATION).base()
@@ -96,49 +95,41 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
 
         self._tx_attenuation_range = qtgui.Range(0, 89, 1, 15, 200)
         self._tx_attenuation_win = qtgui.RangeWidget(self._tx_attenuation_range, self.set_tx_attenuation, "Tx Attenuation", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_grid_layout.addWidget(self._tx_attenuation_win, 8, 0, 1, 1)
-        for r in range(8, 9):
-            self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(0, 1):
-            self.top_grid_layout.setColumnStretch(c, 1)
+        self.top_layout.addWidget(self._tx_attenuation_win)
         self._rx_gain_range = qtgui.Range(0, 60, 1, 10, 200)
         self._rx_gain_win = qtgui.RangeWidget(self._rx_gain_range, self.set_rx_gain, "Rx Gain", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_grid_layout.addWidget(self._rx_gain_win, 8, 1, 1, 1)
-        for r in range(8, 9):
-            self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(1, 2):
-            self.top_grid_layout.setColumnStretch(c, 1)
-        self._phase_shift_before_costas_loop_range = qtgui.Range(0, 2*math.pi, math.pi/2, 0, 200)
-        self._phase_shift_before_costas_loop_win = qtgui.RangeWidget(self._phase_shift_before_costas_loop_range, self.set_phase_shift_before_costas_loop, "Ph Shift (before CL) [rad]", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_grid_layout.addWidget(self._phase_shift_before_costas_loop_win, 1, 1, 1, 1)
+        self.top_layout.addWidget(self._rx_gain_win)
+        self._offset_rx_range = qtgui.Range(-300000, 250000, 1, -100000, 200)
+        self._offset_rx_win = qtgui.RangeWidget(self._offset_rx_range, self.set_offset_rx, "'offset_rx'", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_grid_layout.addWidget(self._offset_rx_win, 1, 0, 1, 2)
         for r in range(1, 2):
             self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(1, 2):
+        for c in range(0, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.qtgui_time_sink_x_3 = qtgui.time_sink_f(
-            96, #size
+        self.qtgui_time_sink_x_1_1_0 = qtgui.time_sink_f(
+            1024, #size
             samp_rate, #samp_rate
-            'Received Demodulated Symbols', #name
-            2, #number of inputs
+            'Average Timing Symbol Sync [Samples]', #name
+            1, #number of inputs
             None # parent
         )
-        self.qtgui_time_sink_x_3.set_update_time(0.10)
-        self.qtgui_time_sink_x_3.set_y_axis(-1, 4)
+        self.qtgui_time_sink_x_1_1_0.set_update_time(0.10)
+        self.qtgui_time_sink_x_1_1_0.set_y_axis(sps-1, sps+1)
 
-        self.qtgui_time_sink_x_3.set_y_label('Amplitude', "")
+        self.qtgui_time_sink_x_1_1_0.set_y_label('Amplitude', "")
 
-        self.qtgui_time_sink_x_3.enable_tags(True)
-        self.qtgui_time_sink_x_3.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 2.5, 0, 0, "")
-        self.qtgui_time_sink_x_3.enable_autoscale(False)
-        self.qtgui_time_sink_x_3.enable_grid(True)
-        self.qtgui_time_sink_x_3.enable_axis_labels(True)
-        self.qtgui_time_sink_x_3.enable_control_panel(False)
-        self.qtgui_time_sink_x_3.enable_stem_plot(False)
+        self.qtgui_time_sink_x_1_1_0.enable_tags(True)
+        self.qtgui_time_sink_x_1_1_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 0.01, 0, 0, "")
+        self.qtgui_time_sink_x_1_1_0.enable_autoscale(False)
+        self.qtgui_time_sink_x_1_1_0.enable_grid(False)
+        self.qtgui_time_sink_x_1_1_0.enable_axis_labels(True)
+        self.qtgui_time_sink_x_1_1_0.enable_control_panel(False)
+        self.qtgui_time_sink_x_1_1_0.enable_stem_plot(False)
 
 
-        labels = ['Before \nDiff. \nDecoding', 'After \nDiff. \nDecoding', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
-        widths = [1, 3, 1, 1, 1,
+        widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
         colors = ['blue', 'red', 'green', 'black', 'cyan',
             'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
@@ -150,27 +141,71 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             -1, -1, -1, -1, -1]
 
 
-        for i in range(2):
+        for i in range(1):
             if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_3.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_time_sink_x_1_1_0.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_time_sink_x_3.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_3.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_3.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_3.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_3.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_3.set_line_alpha(i, alphas[i])
+                self.qtgui_time_sink_x_1_1_0.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_1_1_0.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_1_1_0.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_1_1_0.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_1_1_0.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_1_1_0.set_line_alpha(i, alphas[i])
 
-        self._qtgui_time_sink_x_3_win = sip.wrapinstance(self.qtgui_time_sink_x_3.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_3_win, 0, 1, 1, 1)
-        for r in range(0, 1):
-            self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(1, 2):
-            self.top_grid_layout.setColumnStretch(c, 1)
-        self.qtgui_time_sink_x_1_0 = qtgui.time_sink_c(
-            45, #size
+        self._qtgui_time_sink_x_1_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_1_0.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_1_0_win)
+        self.qtgui_time_sink_x_1_1 = qtgui.time_sink_f(
+            1024, #size
             samp_rate, #samp_rate
-            "Received Samples (After Costas Loop)", #name
+            'Instantaneous Timing Symbol Sync [Samples]', #name
+            1, #number of inputs
+            None # parent
+        )
+        self.qtgui_time_sink_x_1_1.set_update_time(0.10)
+        self.qtgui_time_sink_x_1_1.set_y_axis(sps-1, sps+1)
+
+        self.qtgui_time_sink_x_1_1.set_y_label('Amplitude', "")
+
+        self.qtgui_time_sink_x_1_1.enable_tags(True)
+        self.qtgui_time_sink_x_1_1.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 0.0001, 0, 0, "")
+        self.qtgui_time_sink_x_1_1.enable_autoscale(False)
+        self.qtgui_time_sink_x_1_1.enable_grid(False)
+        self.qtgui_time_sink_x_1_1.enable_axis_labels(True)
+        self.qtgui_time_sink_x_1_1.enable_control_panel(False)
+        self.qtgui_time_sink_x_1_1.enable_stem_plot(False)
+
+
+        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+            'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
+        widths = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        colors = ['blue', 'red', 'green', 'black', 'cyan',
+            'magenta', 'yellow', 'dark red', 'dark green', 'dark blue']
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0, 1.0, 1.0]
+        styles = [1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+            -1, -1, -1, -1, -1]
+
+
+        for i in range(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_1_1.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_1_1.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_1_1.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_1_1.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_1_1.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_1_1.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_1_1.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_1_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_1_win)
+        self.qtgui_time_sink_x_1_0 = qtgui.time_sink_c(
+            200, #size
+            samp_rate, #samp_rate
+            "Received Samples (After Symbol Sync)", #name
             1, #number of inputs
             None # parent
         )
@@ -180,7 +215,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_1_0.set_y_label('Amplitude', "")
 
         self.qtgui_time_sink_x_1_0.enable_tags(True)
-        self.qtgui_time_sink_x_1_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.1, 0, 0, "")
+        self.qtgui_time_sink_x_1_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 0.1, 0, 0, "")
         self.qtgui_time_sink_x_1_0.enable_autoscale(False)
         self.qtgui_time_sink_x_1_0.enable_grid(True)
         self.qtgui_time_sink_x_1_0.enable_axis_labels(True)
@@ -188,7 +223,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_1_0.enable_stem_plot(False)
 
 
-        labels = ['Re', 'Im', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['Rx Samples+Freq Offset+FLL+RRC Re', 'Rx Samples+Freq Offset+FLL+RRC Im', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -217,33 +252,33 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_1_0_win, 2, 1, 1, 1)
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_1_0_win, 2, 0, 1, 1)
         for r in range(2, 3):
             self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(1, 2):
+        for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
-            96, #size
+            1024, #size
             samp_rate, #samp_rate
-            'Transmitted Symbols (Before Constellation Modulator)', #name
+            'Error Signal Symbol Sync [Samples]', #name
             1, #number of inputs
             None # parent
         )
         self.qtgui_time_sink_x_1.set_update_time(0.10)
-        self.qtgui_time_sink_x_1.set_y_axis(-1, 4)
+        self.qtgui_time_sink_x_1.set_y_axis(-1, 1)
 
         self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
 
         self.qtgui_time_sink_x_1.enable_tags(True)
         self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_1.enable_autoscale(False)
-        self.qtgui_time_sink_x_1.enable_grid(True)
+        self.qtgui_time_sink_x_1.enable_grid(False)
         self.qtgui_time_sink_x_1.enable_axis_labels(True)
         self.qtgui_time_sink_x_1.enable_control_panel(False)
         self.qtgui_time_sink_x_1.enable_stem_plot(False)
 
 
-        labels = ['Tx', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['Signal 1', 'Signal 2', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -269,15 +304,11 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_1_win, 0, 0, 1, 1)
-        for r in range(0, 1):
-            self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(0, 1):
-            self.top_grid_layout.setColumnStretch(c, 1)
+        self.top_layout.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
-            (45*16), #size
+            (1024*3), #size
             samp_rate, #samp_rate
-            'Transmitted Samples (After Constellation Modulator)', #name
+            'Transmitted Samples', #name
             1, #number of inputs
             None # parent
         )
@@ -295,7 +326,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.enable_stem_plot(False)
 
 
-        labels = ['Re', 'Im', 'Tx Freq offset Re', 'Tx Freq offset Im', 'Signal 5',
+        labels = ['Tx Samples Re', 'Tx Samples Im', 'Tx Freq offset Re', 'Tx Freq offset Im', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -324,13 +355,13 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_time_sink_x_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win, 2, 0, 1, 1)
-        for r in range(2, 3):
+        self.top_grid_layout.addWidget(self._qtgui_time_sink_x_0_win, 0, 0, 1, 1)
+        for r in range(0, 1):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0_0_0 = qtgui.freq_sink_c(
-            2048, #size
+            8192, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
             samp_rate, #bw
@@ -351,9 +382,9 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
 
 
 
-        labels = ['Rx', 'Rx \n+ \nFreq Offset', 'Rx \n+ \nFreq \nOffset \n+ \nFLL', 'Rx+Freq Offset+FLL+RRC+SySync', 'Rx Spectrum+Freq Offset+FLL+RRC+SySync',
+        labels = ['Rx Spectrum', 'Rx Spectrum + Freq Offset', 'Rx Spectrum + Freq Offset + FLL', 'Rx+Freq Offset+FLL+RRC+SySync', 'Rx Spectrum+Freq Offset+FLL+RRC+SySync',
             '', '', '', '', '']
-        widths = [1, 1, 3, 3, 1,
+        widths = [1, 1, 1, 3, 1,
             1, 1, 1, 1, 1]
         colors = ["blue", "red", "green", "magenta", "cyan",
             "magenta", "yellow", "dark red", "dark green", "dark blue"]
@@ -370,24 +401,24 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0_0_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_0_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0_0_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_0_win, 3, 1, 1, 1)
-        for r in range(3, 4):
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_0_0_win, 2, 1, 1, 1)
+        for r in range(2, 3):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(1, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
-            2048, #size
+            8192, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
             samp_rate, #bw
-            'Transmitted Spectrum', #name
+            "", #name
             1,
             None # parent
         )
         self.qtgui_freq_sink_x_0.set_update_time(1)
         self.qtgui_freq_sink_x_0.set_y_axis((-140), 10)
         self.qtgui_freq_sink_x_0.set_y_label('Relative Gain', 'dB')
-        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, -60, 0, "")
+        self.qtgui_freq_sink_x_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, -40, 0, "")
         self.qtgui_freq_sink_x_0.enable_autoscale(False)
         self.qtgui_freq_sink_x_0.enable_grid(True)
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
@@ -397,7 +428,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
 
 
 
-        labels = ['Tx', 'Tx Spectrum + Freq Offset', '', '', '',
+        labels = ['Tx Spectrum', 'Tx Spectrum + Freq Offset', '', '', '',
             '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -416,10 +447,10 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 3, 0, 1, 1)
-        for r in range(3, 4):
+        self.top_grid_layout.addWidget(self._qtgui_freq_sink_x_0_win, 0, 1, 1, 1)
+        for r in range(0, 1):
             self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(0, 1):
+        for c in range(1, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_eye_sink_x_0_0 = qtgui.eye_sink_c(
             100, #size
@@ -441,7 +472,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.qtgui_eye_sink_x_0_0.enable_control_panel(False)
 
 
-        labels = ['Rx Re (After Costas Loop)', 'Rx Im (After Costas Loop)', 'Signal 3', 'Signal 4', 'Signal 5',
+        labels = ['Rx Re (After Symbol Sync)', 'Rx Im (After Symbol Sync)', 'Signal 3', 'Signal 4', 'Signal 5',
             'Signal 6', 'Signal 7', 'Signal 8', 'Signal 9', 'Signal 10']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -470,27 +501,27 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_eye_sink_x_0_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_eye_sink_x_0_0_win = sip.wrapinstance(self.qtgui_eye_sink_x_0_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_eye_sink_x_0_0_win, 4, 1, 1, 1)
-        for r in range(4, 5):
+        self.top_grid_layout.addWidget(self._qtgui_eye_sink_x_0_0_win, 3, 1, 1, 1)
+        for r in range(3, 4):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(1, 2):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.qtgui_const_sink_x_0_0 = qtgui.const_sink_c(
             int(1024), #size
-            'Received Constellation', #name
-            2, #number of inputs
+            'Received Constellation (After Symbol Sync)', #name
+            1, #number of inputs
             None # parent
         )
         self.qtgui_const_sink_x_0_0.set_update_time(0.10)
         self.qtgui_const_sink_x_0_0.set_y_axis((-2), 2)
         self.qtgui_const_sink_x_0_0.set_x_axis((-2), 2)
-        self.qtgui_const_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.3, 0, "")
+        self.qtgui_const_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_NORM, qtgui.TRIG_SLOPE_POS, 0.5, 0, "")
         self.qtgui_const_sink_x_0_0.enable_autoscale(False)
         self.qtgui_const_sink_x_0_0.enable_grid(True)
         self.qtgui_const_sink_x_0_0.enable_axis_labels(True)
 
 
-        labels = ['Rx Before \nCostas Loop', 'Rx After \nCostas Loop', 'Rx After Costas Loop', '', '',
+        labels = ['Received Constellation', '', '', '', '',
             '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
             1, 1, 1, 1, 1]
@@ -503,7 +534,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
             1.0, 1.0, 1.0, 1.0, 1.0]
 
-        for i in range(2):
+        for i in range(1):
             if len(labels[i]) == 0:
                 self.qtgui_const_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
             else:
@@ -515,8 +546,8 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_0_0.set_line_alpha(i, alphas[i])
 
         self._qtgui_const_sink_x_0_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0_0.qwidget(), Qt.QWidget)
-        self.top_grid_layout.addWidget(self._qtgui_const_sink_x_0_0_win, 4, 0, 1, 1)
-        for r in range(4, 5):
+        self.top_grid_layout.addWidget(self._qtgui_const_sink_x_0_0_win, 3, 0, 1, 1)
+        for r in range(3, 4):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
@@ -550,8 +581,6 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             nfilts,
             rrc_taps)
         self.digital_fll_band_edge_cc_0 = digital.fll_band_edge_cc(sps, alpha, (sps*2+1), (2*math.pi/sps/100))
-        self.digital_diff_decoder_bb_0 = digital.diff_decoder_bb(constellation.arity(), digital.DIFF_DIFFERENTIAL)
-        self.digital_constellation_receiver_cb_0 = digital.constellation_receiver_cb(constellation, (2*math.pi*0.01), (-math.pi/2), (math.pi/2))
         self.digital_constellation_modulator_0 = digital.generic_mod(
             constellation=constellation,
             differential=True,
@@ -561,21 +590,14 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
             verbose=False,
             log=False,
             truncate=False)
-        self.blocks_vector_source_x_0 = blocks.vector_source_b((3,0,1,2,3,0,2,1,3,1,2,0,3,2,1,0,3,2,0,1,3,1,2,0,3,0,1,3,1,2,0,3), True, 1, [])
         self.blocks_unpacked_to_packed_xx_0 = blocks.unpacked_to_packed_bb(2, gr.GR_MSB_FIRST)
         self.blocks_skiphead_0 = blocks.skiphead(gr.sizeof_gr_complex*1, int(samp_rate))
-        self.blocks_phase_shift_0 = blocks.phase_shift(phase_shift_before_costas_loop, True)
-        self.blocks_null_sink_0_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
-        self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
-        self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_xx_0_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(0.6)
-        self.blocks_char_to_float_0_1 = blocks.char_to_float(1, 1)
-        self.blocks_char_to_float_0_0 = blocks.char_to_float(1, 1)
-        self.blocks_char_to_float_0 = blocks.char_to_float(1, 1)
         self.analog_sig_source_x_0_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, offset_rx, 1, 0, 0)
         self.analog_sig_source_x_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, offset_tx, 1, 0, 0)
+        self.analog_random_uniform_source_x_0 = analog.random_uniform_source_b(0, 4, 0)
         self.analog_agc_xx_0 = analog.agc_cc((1e-4), 1.0, 1.0, 65536)
 
 
@@ -584,41 +606,31 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         ##################################################
         self.connect((self.analog_agc_xx_0, 0), (self.digital_fll_band_edge_cc_0, 0))
         self.connect((self.analog_agc_xx_0, 0), (self.qtgui_freq_sink_x_0_0_0, 1))
+        self.connect((self.analog_random_uniform_source_x_0, 0), (self.blocks_unpacked_to_packed_xx_0, 0))
         self.connect((self.analog_sig_source_x_0_0, 0), (self.blocks_multiply_xx_0_0, 1))
         self.connect((self.analog_sig_source_x_0_0_0, 0), (self.blocks_multiply_xx_0_0_0, 1))
-        self.connect((self.blocks_char_to_float_0, 0), (self.qtgui_time_sink_x_3, 1))
-        self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_3, 0))
-        self.connect((self.blocks_char_to_float_0_1, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_multiply_xx_0_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.blocks_multiply_xx_0_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_multiply_xx_0_0_0, 0), (self.analog_agc_xx_0, 0))
-        self.connect((self.blocks_phase_shift_0, 0), (self.digital_constellation_receiver_cb_0, 0))
         self.connect((self.blocks_skiphead_0, 0), (self.digital_symbol_sync_xx_0, 0))
         self.connect((self.blocks_unpacked_to_packed_xx_0, 0), (self.digital_constellation_modulator_0, 0))
-        self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_char_to_float_0_1, 0))
-        self.connect((self.blocks_vector_source_x_0, 0), (self.blocks_unpacked_to_packed_xx_0, 0))
         self.connect((self.digital_constellation_modulator_0, 0), (self.blocks_multiply_const_vxx_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 0), (self.blocks_char_to_float_0_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 1), (self.blocks_null_sink_0_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 2), (self.blocks_null_sink_0_0_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 3), (self.blocks_null_sink_0_0_0_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 0), (self.digital_diff_decoder_bb_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_const_sink_x_0_0, 1))
-        self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_eye_sink_x_0_0, 0))
-        self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_time_sink_x_1_0, 0))
-        self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_char_to_float_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.qtgui_freq_sink_x_0_0_0, 2))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.blocks_phase_shift_0, 0))
         self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_const_sink_x_0_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_eye_sink_x_0_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 1), (self.qtgui_time_sink_x_1, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 0), (self.qtgui_time_sink_x_1_0, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 2), (self.qtgui_time_sink_x_1_1, 0))
+        self.connect((self.digital_symbol_sync_xx_0, 3), (self.qtgui_time_sink_x_1_1_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.blocks_multiply_xx_0_0_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.qtgui_freq_sink_x_0_0_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "qpsk_loopback_pluto")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "symbol_sync_loopback_pluto")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -633,6 +645,8 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.set_rrc_taps(firdes.root_raised_cosine(self.nfilts, self.nfilts*self.samp_rate, self.samp_rate/self.sps, self.alpha, (11*self.sps*self.nfilts)))
         self.digital_fll_band_edge_cc_0.set_loop_bandwidth((2*math.pi/self.sps/100))
         self.digital_symbol_sync_xx_0.set_sps(self.sps)
+        self.qtgui_time_sink_x_1_1.set_y_axis(self.sps-1, self.sps+1)
+        self.qtgui_time_sink_x_1_1_0.set_y_axis(self.sps-1, self.sps+1)
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -651,7 +665,8 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
         self.qtgui_time_sink_x_1_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_3.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1_1.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1_1_0.set_samp_rate(self.samp_rate)
 
     def get_nfilts(self):
         return self.nfilts
@@ -692,13 +707,6 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
 
     def set_pluto_ip(self, pluto_ip):
         self.pluto_ip = pluto_ip
-
-    def get_phase_shift_before_costas_loop(self):
-        return self.phase_shift_before_costas_loop
-
-    def set_phase_shift_before_costas_loop(self, phase_shift_before_costas_loop):
-        self.phase_shift_before_costas_loop = phase_shift_before_costas_loop
-        self.blocks_phase_shift_0.set_shift(self.phase_shift_before_costas_loop)
 
     def get_offset_tx(self):
         return self.offset_tx
@@ -743,7 +751,7 @@ class qpsk_loopback_pluto(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=qpsk_loopback_pluto, options=None):
+def main(top_block_cls=symbol_sync_loopback_pluto, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

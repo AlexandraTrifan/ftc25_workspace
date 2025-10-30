@@ -76,7 +76,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.nfilts = nfilts = 32
         self.alpha = alpha = 0.65
         self.tx_attenuation = tx_attenuation = 15
-        self.rx_gain = rx_gain = 10
+        self.rx_gain = rx_gain = 15
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*samp_rate,samp_rate/sps, alpha, (11*sps*nfilts))
         self._pluto_ip_config = configparser.ConfigParser()
         self._pluto_ip_config.read('default')
@@ -104,7 +104,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._rx_gain_range = qtgui.Range(0, 60, 1, 10, 200)
+        self._rx_gain_range = qtgui.Range(0, 60, 1, 15, 200)
         self._rx_gain_win = qtgui.RangeWidget(self._rx_gain_range, self.set_rx_gain, "Rx Gain", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_grid_layout.addWidget(self._rx_gain_win, 8, 1, 1, 1)
         for r in range(8, 9):
@@ -758,7 +758,7 @@ class qam16_loopback_pluto(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_rfdc(True)
         self.iio_pluto_source_0.set_bbdc(True)
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
-        self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32(pluto_ip if pluto_ip else iio.get_pluto_uri(), [True, True], buff_size, True)
+        self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32(pluto_ip if pluto_ip else iio.get_pluto_uri(), [True, True], buff_size, False)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth((samp_rate*5))
         self.iio_pluto_sink_0.set_frequency(lo_freq)
