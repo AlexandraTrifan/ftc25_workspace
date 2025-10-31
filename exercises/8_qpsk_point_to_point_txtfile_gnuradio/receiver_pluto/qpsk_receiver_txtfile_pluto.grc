@@ -259,7 +259,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: /home/analog/ftc25_workspace/exercises/7_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt
+    file: /home/analog/ftc25_workspace/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt
     type: byte
     unbuffered: 'True'
     vlen: '1'
