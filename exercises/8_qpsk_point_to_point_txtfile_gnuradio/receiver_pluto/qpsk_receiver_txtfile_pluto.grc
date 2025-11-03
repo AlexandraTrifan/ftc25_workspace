@@ -252,24 +252,6 @@ blocks:
     coordinate: [56, 564.0]
     rotation: 0
     state: true
-- name: blocks_file_sink_0
-  id: blocks_file_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    append: 'False'
-    comment: ''
-    file: /home/analog/ftc25_workspace/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt
-    type: byte
-    unbuffered: 'True'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [2192, 900.0]
-    rotation: 0
-    state: true
 - name: blocks_multiply_xx_0_0_0
   id: blocks_multiply_xx
   parameters:
@@ -451,7 +433,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1936, 900.0]
+    coordinate: [1960, 900.0]
     rotation: 0
     state: true
 - name: digital_diff_decoder_bb_0
@@ -637,6 +619,37 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [1776, 1436.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_1
+  id: epy_block
+  parameters:
+    _source_code: "from gnuradio import gr\nimport numpy as np\n\nclass file_overwrite_sink_bytes(gr.sync_block):\n\
+      \    \"\"\"\n    A GNU Radio sink block that writes incoming bytes to a file,\n\
+      \    overwriting the file on each call to work().\n    \"\"\"\n\n    def __init__(self,\
+      \ filename=\"\"):\n        gr.sync_block.__init__(\n            self,\n    \
+      \        name=\"file_overwrite_sink_bytes\",\n            in_sig=[np.byte],\n\
+      \            out_sig=None\n        )\n        self.filename = filename\n\n \
+      \   def work(self, input_items, output_items):\n        data = input_items[0]\n\
+      \n        # Convert the incoming bytes to a string\n        try:\n         \
+      \   text = bytes(data).decode('utf-8', errors='replace')\n        except Exception\
+      \ as e:\n            text = f\"[decode error: {e}]\"\n\n        # Open in text\
+      \ mode and overwrite each call\n        with open(self.filename, 'w', encoding='utf-8')\
+      \ as f:\n            f.write(text)\n\n        return len(data)\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    filename: '"/home/analog/ftc25_workspace/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('file_overwrite_sink_bytes', 'file_overwrite_sink_bytes', [('filename',
+      "''")], [('0', 'byte', 1)], [], '\n    A GNU Radio sink block that writes incoming
+      bytes to a file,\n    overwriting the file on each call to work().\n    ', ['filename'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2088, 1068.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -1518,7 +1531,7 @@ connections:
 - [digital_constellation_receiver_cb_0, '4', qtgui_eye_sink_x_0_0, '0']
 - [digital_constellation_receiver_cb_0, '4', qtgui_time_sink_x_1_0, '0']
 - [digital_correlate_access_code_xx_ts_0_0, '0', blocks_repack_bits_bb_1_0, '0']
-- [digital_crc32_bb_0_0, '0', blocks_file_sink_0, '0']
+- [digital_crc32_bb_0_0, '0', epy_block_1, '0']
 - [digital_diff_decoder_bb_0, '0', blocks_unpack_k_bits_bb_0, '0']
 - [digital_fll_band_edge_cc_0, '0', blocks_skiphead_0, '0']
 - [digital_fll_band_edge_cc_0, '0', qtgui_freq_sink_x_0_0_0, '2']

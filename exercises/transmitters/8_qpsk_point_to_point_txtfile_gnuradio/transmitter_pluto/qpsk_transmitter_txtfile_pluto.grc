@@ -90,6 +90,7 @@ blocks:
     const_points: '[-1-1j, -1+1j, 1+1j, 1-1j]'
     dims: '1'
     normalization: digital.constellation.AMPLITUDE_NORMALIZATION
+    npwr: '1.0'
     precision: '8'
     rot_sym: '4'
     soft_dec_lut: None
@@ -204,9 +205,7 @@ blocks:
     label: Rx Gain
     min_len: '200'
     orient: QtCore.Qt.Horizontal
-    outputmsgname: value
     rangeType: float
-    showports: 'False'
     start: '0'
     step: '1'
     stop: '60'
@@ -275,9 +274,7 @@ blocks:
     label: Tx Attenuation
     min_len: '200'
     orient: QtCore.Qt.Horizontal
-    outputmsgname: value
     rangeType: float
-    showports: 'False'
     start: '0'
     step: '1'
     stop: '89'
@@ -342,6 +339,7 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: complex
     waveform: analog.GR_COS_WAVE
   states:
@@ -364,6 +362,7 @@ blocks:
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
+    showports: 'False'
     type: complex
     waveform: analog.GR_COS_WAVE
   states:
@@ -398,7 +397,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: C:/Users/VBeleca/OneDrive - Analog Devices, Inc/Desktop/transmitters_ftc2025_v1/7_qpsk_point_to_point_txtfile_gnuradio/transmitter_pluto/padded.txt
+    file: /home/analog/ftc25_workspace/exercises/transmitters/8_qpsk_point_to_point_txtfile_gnuradio/transmitter_pluto/padded.txt
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -1493,4 +1492,4 @@ connections:
 
 metadata:
   file_format: 1
-  grc_version: 3.10.4.0
+  grc_version: 3.10.11.0
