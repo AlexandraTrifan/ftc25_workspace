@@ -29,6 +29,7 @@ import math
 import qpsk_receiver_txtfile_pluto_epy_block_0 as epy_block_0  # embedded python block
 import qpsk_receiver_txtfile_pluto_epy_block_0_0 as epy_block_0_0  # embedded python block
 import qpsk_receiver_txtfile_pluto_epy_block_0_0_0 as epy_block_0_0_0  # embedded python block
+import qpsk_receiver_txtfile_pluto_epy_block_1 as epy_block_1  # embedded python block
 import sip
 import threading
 
@@ -529,6 +530,7 @@ class qpsk_receiver_txtfile_pluto(gr.top_block, Qt.QWidget):
         self.iio_pluto_source_0.set_rfdc(True)
         self.iio_pluto_source_0.set_bbdc(True)
         self.iio_pluto_source_0.set_filter_params('Auto', '', 0, 0)
+        self.epy_block_1 = epy_block_1.file_overwrite_sink_bytes(filename="/home/analog/Desktop/ftc_2025/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt")
         self.epy_block_0_0_0 = epy_block_0_0_0.blk(window_size=100)
         self.epy_block_0_0 = epy_block_0_0.blk(window_size=100)
         self.epy_block_0 = epy_block_0.blk(window_size=100)
@@ -558,8 +560,6 @@ class qpsk_receiver_txtfile_pluto(gr.top_block, Qt.QWidget):
         self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0_0_0 = blocks.multiply_vcc(1)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_char*1, '/home/analog/ftc25_workspace/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt', False)
-        self.blocks_file_sink_0.set_unbuffered(True)
         self.analog_sig_source_x_0_0_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, offset_rx, 1, 0, 0)
         self.analog_agc_xx_0 = analog.agc_cc((1e-4), 1.0, 1.0, 65536)
 
@@ -583,7 +583,7 @@ class qpsk_receiver_txtfile_pluto(gr.top_block, Qt.QWidget):
         self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_eye_sink_x_0_0, 0))
         self.connect((self.digital_constellation_receiver_cb_0, 4), (self.qtgui_time_sink_x_1_0, 0))
         self.connect((self.digital_correlate_access_code_xx_ts_0_0, 0), (self.blocks_repack_bits_bb_1_0, 0))
-        self.connect((self.digital_crc32_bb_0_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.digital_crc32_bb_0_0, 0), (self.epy_block_1, 0))
         self.connect((self.digital_diff_decoder_bb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.blocks_skiphead_0, 0))
         self.connect((self.digital_fll_band_edge_cc_0, 0), (self.qtgui_freq_sink_x_0_0_0, 2))

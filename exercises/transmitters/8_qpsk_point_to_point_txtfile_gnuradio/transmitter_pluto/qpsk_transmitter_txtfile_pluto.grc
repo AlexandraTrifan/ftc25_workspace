@@ -397,7 +397,7 @@ blocks:
     alias: ''
     begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /home/analog/ftc25_workspace/exercises/transmitters/8_qpsk_point_to_point_txtfile_gnuradio/transmitter_pluto/padded.txt
+    file: /home/analog/Desktop/ftc_2025/exercises/transmitters/8_qpsk_point_to_point_txtfile_gnuradio/transmitter_pluto/padded.txt
     length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'

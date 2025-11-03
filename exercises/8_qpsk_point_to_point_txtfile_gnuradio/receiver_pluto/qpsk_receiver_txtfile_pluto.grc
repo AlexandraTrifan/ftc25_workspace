@@ -635,11 +635,11 @@ blocks:
       \   text = bytes(data).decode('utf-8', errors='replace')\n        except Exception\
       \ as e:\n            text = f\"[decode error: {e}]\"\n\n        # Open in text\
       \ mode and overwrite each call\n        with open(self.filename, 'w', encoding='utf-8')\
-      \ as f:\n            f.write(text)\n\n        return len(data)\n"
+      \ as f:\n            f.write(text)\n\n        f.close()\n        return len(data)\n"
     affinity: ''
     alias: ''
     comment: ''
-    filename: '"/home/analog/ftc25_workspace/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt"'
+    filename: '"/home/analog/Desktop/ftc_2025/exercises/8_qpsk_point_to_point_txtfile_gnuradio/receiver_pluto/received.txt"'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
