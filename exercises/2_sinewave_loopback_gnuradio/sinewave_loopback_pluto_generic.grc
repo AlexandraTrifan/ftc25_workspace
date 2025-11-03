@@ -108,18 +108,6 @@ blocks:
     coordinate: [544, 20.0]
     rotation: 0
     state: enabled
-- name: lo_freq_rx
-  id: variable
-  parameters:
-    comment: ''
-    value: '3200000000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [144, 660.0]
-    rotation: 0
-    state: enabled
 - name: lo_offset
   id: variable
   parameters:
@@ -158,9 +146,9 @@ blocks:
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '0'
+    start: '-3'
     step: '1'
-    stop: '60'
+    stop: '71'
     value: '10'
     widget: counter_slider
   states:
@@ -170,6 +158,18 @@ blocks:
     coordinate: [128, 724.0]
     rotation: 0
     state: true
+- name: rx_lo_freq
+  id: variable
+  parameters:
+    comment: ''
+    value: '3200000000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [144, 660.0]
+    rotation: 0
+    state: enabled
 - name: samp_rate
   id: variable
   parameters:
@@ -203,7 +203,7 @@ blocks:
     coordinate: [112, 316.0]
     rotation: 0
     state: enabled
-- name: tx_attenuation
+- name: tx_atten
   id: variable_qtgui_range
   parameters:
     comment: ''
@@ -325,6 +325,54 @@ blocks:
     coordinate: [624, 476.0]
     rotation: 0
     state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    RX_LO: rx_lo_freq
+    TX_LO: tx_lo_freq
+    _source_code: "from gnuradio import gr\nimport adi\nimport time\n\nclass pluto_init_block(gr.sync_block):\n\
+      \    def __init__(self,\n                 uri=\"ip:pluto.local\",\n        \
+      \         RX_LO=2450000000,\n                 TX_LO=2450000000,\n          \
+      \       sample_rate=2500000,\n                 rx_gain=-10,\n              \
+      \   tx_attenuation=-10):\n        gr.sync_block.__init__(\n            self,\n\
+      \            name=\"Pluto Init Block\",\n            in_sig=None,\n        \
+      \    out_sig=None\n        )\n\n        # Store configuration\n        self.uri\
+      \ = uri\n        self.rx_lo = RX_LO\n        self.tx_lo = TX_LO\n        self.sample_rate\
+      \ = sample_rate\n        self.rx_gain = rx_gain\n        self.tx_attenuation\
+      \ = tx_attenuation\n\n        # Initialize Pluto once the flowgraph starts\n\
+      \        self._initialized = False\n\n    def start(self):\n        self.log(\"\
+      Connecting to PlutoSDR...\")\n        self.sdr = adi.Pluto(self.uri)\n     \
+      \   self.apply_settings()\n        self.log(\"PlutoSDR initialized and configured.\"\
+      )\n        self._initialized = True\n        return super().start()\n\n    def\
+      \ apply_settings(self):\n        sdr = self.sdr\n\n        # RX setup\n    \
+      \    sdr.rx_lo = int(self.RX_LO)\n        sdr.gain_control_mode_chan0 = 'manual'\n\
+      \        sdr.rx_sample_rate = int(self.sample_rate)\n        sdr.rx_hardwaregain_chan0\
+      \ = float(self.rx_gain)\n\n        # TX setup\n        sdr.tx_lo = int(self.TX_LO)\n\
+      \        sdr.tx_rf_bandwidth = int(self.tx_bw)\n        sdr.tx_sample_rate =\
+      \ int(self.sample_rate)\n        sdr.tx_hardwaregain_chan0 = float(self.tx_attenuation)\n\
+      \n    def log(self, msg):\n        print(f\"[Pluto Init] {msg}\")\n\n    def\
+      \ work(self, input_items, output_items):\n        # This block does not process\
+      \ samples\n        return 0\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    rx_gain: rx_gain
+    sample_rate: samp_rate
+    tx_attenuation: tx_atten
+    uri: '''ip:pluto.local'''
+  states:
+    _io_cache: ('Pluto Init Block', 'pluto_init_block', [('uri', "'ip:pluto.local'"),
+      ('RX_LO', '2450000000'), ('TX_LO', '2450000000'), ('sample_rate', '2500000'),
+      ('rx_gain', '-10'), ('tx_attenuation', '-10')], [], [], '', ['rx_gain', 'sample_rate',
+      'tx_attenuation', 'uri'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1224, 20.0]
+    rotation: 0
+    state: enabled
 - name: iio_attr_sink_0_0_0
   id: iio_attr_sink
   parameters:
@@ -358,9 +406,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1296, 372.0]
+    coordinate: [1336, 476.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_attr_sink_0_1_0_0
   id: iio_attr_sink
   parameters:
@@ -376,9 +424,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1296, 500.0]
+    coordinate: [1336, 604.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_attr_updater_0_0_0
   id: iio_attr_updater
   parameters:
@@ -412,9 +460,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1024, 380.0]
+    coordinate: [1064, 484.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_attr_updater_0_1_0_0
   id: iio_attr_updater
   parameters:
@@ -430,9 +478,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1040, 508.0]
+    coordinate: [1080, 612.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: iio_device_sink_0_1
   id: iio_device_sink
   parameters:
@@ -452,7 +500,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [848, 468.0]
+    coordinate: [848, 484.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -467,7 +515,7 @@ blocks:
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: lo_freq_rx
+    frequency: rx_lo_freq
     fstop: '0'
     gain1: '''manual'''
     len_tag_key: packet_len
